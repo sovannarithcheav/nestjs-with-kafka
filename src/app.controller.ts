@@ -1,12 +1,17 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get, Query } from '@nestjs/common';
+import { KafkaService, SubscribeTo } from '@go1f/nestjs-kafka-client';
 
-@Controller()
+@Controller('kafka')
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly kafkaClient: KafkaService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Get('publish')
+  getHello(@Query('message') message): void {
+    this.kafkaClient.sendSingleMessage('testTopic', '','My first Kafka Message: '+ message);
   }
+
+  @SubscribeTo('testTopic')
+    handleMessage(message: any) {
+      console.log(message);
+    }
 }
